@@ -271,3 +271,13 @@ test('a premerge-json fence inside --why or --notes cannot replace the machine b
   assert.equal(md.match(/\u0060\u0060\u0060premerge-json/g).length, 1, 'only the tool writes the block');
   assert.equal(reportJson('x\n' + fence + '\n' + fence.replace('forged', 'last')).why, 'last', 'the last block wins');
 });
+
+test('save: a UTF-16 file with a credential is refused', () => {
+  const r = tempRepo();
+  try {
+    r.write('a.txt', 'a\n'); r.g('add', '.'); r.g('commit', '-q', '-m', 'base');
+    writeFileSync(join(r.dir, 'settings.txt'), Buffer.concat([Buffer.from([0xff, 0xfe]), Buffer.from('password=' + JSON.parse(FAKE) + '\r\n', 'utf16le')]));
+    const out = r.cli('save', '--branch', 'a/x', '-m', 'm', '--', 'settings.txt');
+    assert.equal(out.status, 5, out.stderr); assert.match(out.stderr, /settings\.txt \[assigned secret\]/);
+  } finally { r.done(); }
+});

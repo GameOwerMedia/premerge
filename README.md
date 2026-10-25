@@ -148,7 +148,7 @@ Yes. The script is a plain CLI; the skill only tells an agent when and how to us
 
 ## Limitations
 
-- The private-file and secret checks in `save` are pattern-based and best effort; they reduce accidents, they do not prove a commit is clean. The full list of patterns is in `skills/premerge/scripts/premerge.mjs` (`PRIVATE_FILE`, `SECRET_RULES`) and in `tests/secrets.test.mjs`.
+- The private-file and secret checks in `save` are pattern-based and best effort; they reduce accidents, they do not prove a commit is clean. The full list of patterns is in `skills/premerge/scripts/safety.mjs` (`PRIVATE_FILE`, `SECRET_RULES`) and in `tests/secrets.test.mjs`.
 
 - Export detection covers JavaScript and TypeScript `export` declarations only.
 - Partial-file detection compares blobs, so it only knows that a file differs, not which hunks belong to whom; the author's notes have to say that.

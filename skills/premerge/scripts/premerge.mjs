@@ -22,6 +22,7 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isPrivateFile, scanBuffer, scanDiffForSecrets, utf16Kind } from './safety.mjs';
 
 export const VERSION = '0.1.0';
 export const REPORT_DIR = 'docs/premerge';
@@ -45,78 +46,9 @@ export const DEFAULT_HOT_FILES = [
 const PROD_PATTERN = '^(prod|production|release)([-_/].*)?$|^(main|master)$';
 const BASE_CANDIDATES = ['main', 'master', 'trunk', 'develop'];
 
-// ---------- private files and secrets (best effort, not a guarantee) ----------
+// ---------- private files and secrets (best effort, not a guarantee): see safety.mjs ----------
 
-/** File names `save` never commits, whatever the caller asks. Matched against the path with forward slashes. */
-export const PRIVATE_FILE = new RegExp('(^|/)(' + [
-  '\\.env(\\.[^/]*)?', '[^/]+\\.env', 'env\\.(prod|production|dev|development|local|stage|staging|test)[^/]*', '\\.envrc',
-  '[^/]*\\.local\\.[^/]+',
-  '[^/]*\\.(pem|key|p12|pfx|jks|keystore|ppk|p8|kdbx|tfvars)',
-  '[^/]*\\.tfstate(\\.[^/]*)?',
-  '[^/]*id_(rsa|dsa|ecdsa|ed25519)[^/]*',
-  '\\.npmrc', '\\.pypirc', '\\.netrc', '\\.git-credentials', '\\.htpasswd',
-  'credentials', 'credentials[^/]*\\.json', 'service[-_]?account[^/]*\\.json', '\\.docker/config\\.json',
-].join('|') + ')$', 'i');
-/** Public counterparts that look private by name: templates and public keys. */
-const PUBLIC_OK = /(\.pub|(^|\/|\.)env\.(example|sample|template|dist)|(^|\/)(example|sample)\.env)$/i;
-export const isPrivateFile = p => PRIVATE_FILE.test(p) && !PUBLIC_OK.test(p);
-
-const NAME = '[A-Za-z0-9_.-]*?(?:api[_-]?key|apikey|secret|token|passw(?:or)?d|passwd|pwd|credential|'
-  + 'private[_-]?key|access[_-]?key|auth[_-]?key)[A-Za-z0-9_.-]*';
-const PLACEHOLDER = /^(<.*>|\$\{?.*|\{\{.*|%.*%|x{6,}|\*{6,}|.*(example|placeholder|changeme|your[_-]|dummy|redacted).*)$/i;
-const NOT_LITERAL = /^(process\.env|os\.environ|os\.getenv|env\.|secrets\.|vars\.|config\.|settings\.|true|false|null|none|undefined)/i;
-/** [kind, pattern, optional value check]; the value check gets the first capture group. */
-export const SECRET_RULES = [
-  ['private key', /-----BEGIN [A-Z0-9 ]*PRIVATE KEY( BLOCK)?-----/],
-  ['provider key', new RegExp('(?<![A-Za-z0-9])(' + [
-    'sk-(?:ant-|proj-)?[A-Za-z0-9_-]{20,}', '(?:sk|rk)_(?:live|test)_[A-Za-z0-9]{16,}', 'AIza[0-9A-Za-z_-]{30,}',
-    'gh[pousr]_[A-Za-z0-9]{30,}', 'github_pat_[A-Za-z0-9_]{30,}', 'xox[abposr]-[A-Za-z0-9-]{10,}', '(?:AKIA|ASIA)[0-9A-Z]{16}',
-    'hf_[A-Za-z0-9]{30,}', 'glpat-[A-Za-z0-9_-]{20,}', 'npm_[A-Za-z0-9]{36}',
-  ].join('|') + ')')],
-  ['webhook URL', /hooks\.slack\.com\/services\/T[A-Za-z0-9]+\/B[A-Za-z0-9]+\/[A-Za-z0-9]+/],
-  ['JSON web token', /eyJ[A-Za-z0-9_-]{8,}\.eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}/],
-  ['bearer token', /\bBearer\s+([A-Za-z0-9._~+/-]{16,}=*)/i, v => !PLACEHOLDER.test(v)],
-  ['URL credentials', /[a-z][a-z0-9+.-]*:\/\/[^\s:/@'"]+:([^\s:/@'"]+)@/i, v => !PLACEHOLDER.test(v) && v.length >= 4],
-  // quoted literal assigned to a sensitive name, anywhere on the line (code, JSON, YAML, dotenv)
-  ['assigned secret', new RegExp(`(${NAME})["']?\\s*(?::=|=>|[:=])\\s*["']([^"'\\s]{8,})["']`, 'i'),
-    (v, name) => !/tokeniz/i.test(name) && !PLACEHOLDER.test(v)],
-  // unquoted literal on a line that is only an assignment: dotenv, shell `export`, YAML
-  ['assigned secret', new RegExp(`^\\s*(?:export\\s+)?(${NAME})\\s*[:=]\\s*([^\\s"'#;]{8,})\\s*(?:#.*)?$`, 'i'),
-    (v, name) => !/tokeniz/i.test(name) && !PLACEHOLDER.test(v) && !NOT_LITERAL.test(v) && !/[()[\]{}$]/.test(v)],
-];
-
-/** Kinds of secret-looking content in one line (never the value). */
-export function secretKinds(line) {
-  const kinds = new Set();
-  for (const [kind, re, check] of SECRET_RULES) {
-    const m = line.match(re);
-    if (!m) continue;
-    const value = m.length > 2 ? m[m.length - 1] : m[1];
-    if (!check || check(value, m[1])) kinds.add(kind);
-  }
-  return [...kinds];
-}
-
-/**
- * Secret-looking lines added by a unified diff (run git diff with --text so binary files are scanned too).
- * Only lines inside hunks count; `+++` is a file header only before the first `@@` of each file.
- */
-export function scanDiffForSecrets(diff) {
-  const hits = []; let file = null, inHunk = false;
-  for (const l of String(diff).split('\n')) {
-    if (l.startsWith('diff --git ')) { inHunk = false; file = null; continue; }
-    if (!inHunk) {
-      if (l.startsWith('+++ ')) { const f = l.slice(4); if (f !== '/dev/null') file = f.replace(/^b\//, ''); continue; }
-      if (l.startsWith('--- ')) { if (!file) file = l.slice(4).replace(/^a\//, ''); continue; }
-      if (l.startsWith('@@')) inHunk = true;
-      continue;
-    }
-    if (l.startsWith('@@')) continue;
-    if (!l.startsWith('+')) continue;
-    for (const kind of secretKinds(l.slice(1))) hits.push({ kind, file });
-  }
-  return hits;
-}
+export { PRIVATE_FILE, isPrivateFile, SECRET_RULES, secretKinds, scanDiffForSecrets, scanBuffer, utf16Kind } from './safety.mjs';
 
 // ---------- git ----------
 
@@ -525,6 +457,11 @@ export function saveWork(repo, { branch, message, paths = [], from = 'HEAD', pat
     if (stagedPriv.length) return { refused: 'private files', files: stagedPriv };
     const diff = git(repo, ['diff', '--cached', '--text', '--no-renames', '--no-ext-diff', '--no-color', parent], { env, raw: true });
     const secrets = scanDiffForSecrets(diff.toString('latin1'));
+    // UTF-16 files look like binary noise in a diff: scan their whole new content decoded
+    for (const p of staged) {
+      const blob = git(repo, ['cat-file', 'blob', `:${p}`], { env, raw: true, allowFail: true });
+      if (blob && utf16Kind(blob)) for (const kind of scanBuffer(blob)) secrets.push({ kind, file: p });
+    }
     if (secrets.length) return { refused: 'possible secrets', secrets };
     const tree = git(repo, ['write-tree'], { env });
     const c = git(repo, ['commit-tree', tree, '-p', parent], { input: message.endsWith('\n') ? message : message + '\n' });

@@ -1,8 +1,8 @@
-// Table-driven tests for the private-file list and the secret-line detection used by `save`.
+// Table-driven tests for safety.mjs: private file names and secret-looking content (shared by premerge and mergechaos).
 // Every credential below is fake and assembled at run time, so secret scanners do not flag this file.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { secretKinds, scanDiffForSecrets, isPrivateFile } from '../skills/premerge/scripts/premerge.mjs';
+import { secretKinds, scanDiffForSecrets, isPrivateFile, scanBuffer, utf16Kind } from '../skills/premerge/scripts/safety.mjs';
 
 const V = 'q7Rk' + 'Lm2Px9Tz4Wb8Yc';                 // 18 characters, looks random
 const LONG = V + V;                                  // 36 characters
@@ -22,6 +22,8 @@ const SECRET_LINES = [
   // unquoted: dotenv, shell export, YAML
   [`export TOKEN=${V}`, 'assigned secret'],
   [`DB_PASSWORD=${V}`, 'assigned secret'],
+  ['export AWS_SECRET_' + 'ACCESS_KEY=' + 'wJalr' + 'XUtnFEMI/K7MDENG/' + V + 'EXAMPLEKEY', 'assigned secret'],
+  [`aws_secret_access_key = ${V}`, 'assigned secret'],
   [`  password: ${V}`, 'assigned secret'],
   // known prefixes
   ['sk' + '_live_' + V, 'provider key'],
@@ -80,7 +82,7 @@ const PRIVATE = [
   'certs/server.pem', 'tls.key', 'store.p12', 'release.jks', 'android.keystore', 'putty.ppk', 'AuthKey_ABC.p8', 'vault.kdbx',
   'terraform.tfstate', 'infra/terraform.tfstate.backup', 'prod.tfvars', '.ssh/id_rsa', 'id_rsa.bak', 'my_id_ed25519', 'id_ecdsa',
   '.npmrc', '.pypirc', '.netrc', '.git-credentials', '.htpasswd', '.aws/credentials', 'Credentials.JSON', 'gcp/service-account.json',
-  'service_account_prod.json', '.docker/config.json',
+  'service_account_prod.json', '.docker/config.json', '.pgpass', 'secrets.json', 'config/secrets.yaml', '.dev.vars', 'client_secret_123.json',
 ];
 const PUBLIC = ['src/env.js', 'docs/local.md', 'keys.md', '.env.example', 'app/.env.sample', 'config/.env.template', '.ssh/id_rsa.pub',
   'src/environment.ts', 'docs/credentials-guide.md', 'docker/config.json', 'tokenizer.json', 'src/keyboard.ts'];
@@ -90,4 +92,15 @@ test('isPrivateFile: every documented private name is refused', () => {
 });
 test('isPrivateFile: ordinary and template files pass', () => {
   for (const p of PUBLIC) assert.ok(!isPrivateFile(p), p);
+});
+
+test('scanBuffer: UTF-16 (with and without BOM) and binary content are scanned', () => {
+  const line = `password=${V}\n`;
+  const le = Buffer.concat([Buffer.from([0xff, 0xfe]), Buffer.from(line, 'utf16le')]);
+  const leNoBom = Buffer.from('notes\n' + line, 'utf16le');
+  const be = Buffer.from(Buffer.from(line, 'utf16le')); be.swap16();
+  assert.equal(utf16Kind(le), 'le'); assert.equal(utf16Kind(leNoBom), 'le');
+  for (const b of [le, leNoBom, Buffer.concat([Buffer.from([0xfe, 0xff]), be])]) assert.deepEqual(scanBuffer(b), ['assigned secret']);
+  assert.deepEqual(scanBuffer(Buffer.concat([Buffer.from([0, 1, 2, 0, 10]), Buffer.from(line)])), ['assigned secret']);
+  assert.deepEqual(scanBuffer(Buffer.from('plain text\n', 'utf16le')), []);
 });
