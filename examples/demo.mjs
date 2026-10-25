@@ -16,6 +16,7 @@ const root = mkdtempSync(path.join(tmpdir(), 'premerge-demo-')), repo = path.joi
 const transcript = [];
 const hide = s => s.split(root).join('~/work').split(root.replace(/\\/g, '/')).join('~/work').replace(/\\/g, '/');
 const g = (...a) => execFileSync('git', a, { cwd: repo, encoding: 'utf8' }).trim();
+const status = () => execFileSync('git', ['status', '--short'], { cwd: repo, encoding: 'utf8' }).trimEnd();   // keep git's leading column
 const put = (f, t) => { mkdirSync(path.dirname(path.join(repo, f)), { recursive: true }); writeFileSync(path.join(repo, f), t); };
 function step(title, args) {
   const r = spawnSync(process.execPath, [CLI, ...args], { cwd: repo, encoding: 'utf8', env: { ...process.env, PREMERGE_REGISTRY: '' } });
@@ -56,8 +57,8 @@ step('Agent A writes and commits its report', ['report', '--branch', 'agent-a/ca
 step('Agent B saves its currency change and reports, depending on agent A', ['save', '--branch', 'agent-b/usd', '-m', 'Sell in USD', '--', 'src/i18n.js', 'package.json']);
 step('Agent B reports; its report sees the overlap with agent A', ['report', '--branch', 'agent-b/usd', '--why', 'The US store opens first, so prices are shown in USD.', '--author', 'agent-b (i18n)', '--depends-on', 'agent-a/cart', '--commit']);
 step('The merging side compares every branch before merging', ['list']);
-console.log(`\nWorking tree after all of this (nothing was checked out or stashed):\n${g('status', '--short')}`);
-transcript.push('$ git status --short', g('status', '--short'), '');
+console.log(`\nWorking tree after all of this (nothing was checked out or stashed):\n${status()}`);
+transcript.push('$ git status --short', status(), '');
 
 if (writeDocs) {
   const docs = path.join(here, '..', 'docs');

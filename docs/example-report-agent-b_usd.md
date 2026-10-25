@@ -3,9 +3,9 @@
 - **Repository:** `acme-shop`
 - **Why:** The US store opens first, so prices are shown in USD.
 - **Status:** ready, depends on `agent-a/cart` (merge those first)
-- **Merge into:** `main` (merge-base `ed2219c362`, head `e0dec97058`)
+- **Merge into:** `main` (merge-base `8d93f748f5`, head `b2e124c5ba`)
 - **Author:** agent-b (i18n)
-- **Written:** 2026-10-25T10:57:47.348Z
+- **Written:** 2026-10-25T11:30:19.358Z
 - **Size:** 1 commit(s), 2 file(s), +4/-2
 - **Merge command:** `git merge --no-ff agent-b/usd`
 
@@ -39,7 +39,7 @@ _The author did not add notes. Read the commit messages below._
 
 ## Commits
 
-- e0dec97 2026-10-25 Sell in USD
+- b2e124c 2026-10-25 Sell in USD
 
 ## Checklist for the merging agent
 
@@ -50,5 +50,5 @@ _The author did not add notes. Read the commit messages below._
 5. If you do not understand why a change exists, do not merge it: ask the author or the owner of the repository.
 
 ```premerge-json
-{"schema":1,"tool":"premerge 0.1.0","repo":"acme-shop","branch":"agent-b/usd","base":"main","head":"e0dec97058","mergeBase":"ed2219c362","author":"agent-b (i18n)","why":"The US store opens first, so prices are shown in USD.","status":"ready","dependsOn":["agent-a/cart"],"production":[],"at":"2026-10-25T10:57:47.348Z","files":["package.json","src/i18n.js"],"modules":["(root)","src/"],"hotFiles":["package.json"],"exports":{"added":["locale"],"removed":[],"changed":["currency"]},"partial":[]}
+{"schema":1,"tool":"premerge 0.1.0","repo":"acme-shop","branch":"agent-b/usd","base":"main","head":"b2e124c5ba","mergeBase":"8d93f748f5","author":"agent-b (i18n)","why":"The US store opens first, so prices are shown in USD.","status":"ready","dependsOn":["agent-a/cart"],"production":[],"at":"2026-10-25T11:30:19.358Z","files":["package.json","src/i18n.js"],"modules":["(root)","src/"],"hotFiles":["package.json"],"exports":{"added":["locale"],"removed":[],"changed":["currency"]},"partial":[]}
 ```

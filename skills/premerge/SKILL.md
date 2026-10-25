@@ -1,6 +1,6 @@
 ---
 name: premerge
-description: Write a merge report for a branch before someone else merges it, and compare all reports on the merging side. Use when an agent finishes work on a branch that another agent or a person will merge, when several agents share one repository or one working tree, when the user says "premerge", "write a merge report", "prepare this branch for merge", "save my work without touching the others", or asks what the other branches change and in which order to merge them. The report states why the change exists, lists files, modules, exports, hot files, partial files and overlaps with other branches, and is committed onto the branch without a checkout or stash.
+description: Write a merge report for a branch before someone else merges it, and compare all reports on the merging side. Use when an agent finishes work on a branch another agent or person will merge, when several agents share one repository or working tree, or when the user says "premerge", "write a merge report", "prepare this branch for merge" or asks in which order to merge the open branches.
 argument-hint: '[--why "<purpose>"] [--branch <name>]'
 ---
 
@@ -8,7 +8,7 @@ argument-hint: '[--why "<purpose>"] [--branch <name>]'
 
 Many agents work in one repository at the same time. Before anything is merged, each one leaves a report on its own branch, so the agent that merges knows what was done, why, and which files collide with other branches, without guessing and without touching anyone's working tree.
 
-The tool is one dependency-free script: `node "${CLAUDE_SKILL_DIR}/scripts/premerge.mjs"` (Node.js 18+, git 2.31+). Below it is written as `premerge`.
+The tool is one dependency-free script: `node "${CLAUDE_SKILL_DIR}/scripts/premerge.mjs"` (Node.js 20+, git 2.25+). Below it is written as `premerge`.
 
 ## Author side: the agent that did the work
 
@@ -16,7 +16,8 @@ The tool is one dependency-free script: `node "${CLAUDE_SKILL_DIR}/scripts/preme
    - You own the working tree: commit normally on your branch.
    - The working tree is shared with other sessions (dirty files that are not yours): never `checkout`, `stash`, `reset` or `clean`. Save only your files:
      `premerge save --branch <you>/<topic> -m "<message>" -- <your files>`
-     The commit is built in a temporary index on top of HEAD (or on top of the branch if it exists); the working tree, the shared index and HEAD do not change. Private files (`.env*`, `*.local.*`, keys) and lines that look like secrets are refused.
+     The commit is built in a temporary index on top of HEAD (or on top of the branch if it exists); the working tree, the shared index and HEAD do not change. Well-known private files (`.env` and `*.env`, `*.local.*`, key stores, SSH keys, credential files) and lines that look like credentials are refused. This check is best effort; never rely on it alone.
+     `save -- .` is refused: name your own files or folders.
    - A file holds your hunks and someone else's: write a patch with only your hunks and use `premerge save --branch <b> -m "..." --patch mine.diff`.
 2. **Write the notes** to a scratch file (`notes.md`), per feature: what and why, the files, the hunks in shared files, what you deliberately left out (other sessions' hunks), derived files and how to regenerate them, the tests to run. The facts (files, numbers, commits) come from git; do not retype them.
 3. **Generate and commit the report:**
@@ -60,4 +61,4 @@ Header (repository, why, status, dependencies, position against production branc
 - Facts come from git through the tool; the author adds only the what and why. Never write file lists from memory.
 - Never take another session's uncommitted hunks; the "Partial files" list exists to warn about exactly that.
 - No secrets, no private files, no personal data in reports or notes.
-- Exit codes: 0 ok, 2 usage, 3 missing `--why`, 4 nothing to report or save, 5 refused (private file or possible secret).
+- Exit codes: 0 ok, 2 usage, 3 missing `--why`, 4 nothing to report or save, 5 refused (private file, possible secret, or uncommitted edits in the report file of a checked-out branch).

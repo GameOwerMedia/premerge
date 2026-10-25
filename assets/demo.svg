@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="608" viewBox="0 0 1000 608" role="img" aria-labelledby="t"><title id="t">premerge demo: two agents, one working tree</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="722" viewBox="0 0 1000 722" role="img" aria-labelledby="t"><title id="t">premerge demo: two agents, one working tree</title>
 <style>
   :root { --bg:#f6f8fa; --card:#ffffff; --line:#d0d7de; --fg:#1f2328; --muted:#59636e; --blue:#0969da; --green:#1a7f37; --amber:#9a6700; --red:#cf222e; --purple:#8250df;
           --blue-bg:#ddf4ff; --green-bg:#dafbe1; --amber-bg:#fff8c5; --red-bg:#ffebe9; --purple-bg:#fbefff; --term:#0d1117; --term-fg:#e6edf3; --term-muted:#9198a1; }
@@ -13,37 +13,43 @@
   .card { fill: var(--card); stroke: var(--line); stroke-width: 1; }
   .wire { stroke: var(--muted); stroke-width: 1.5; fill: none; }
 </style>
-<rect x="0" y="0" width="1000" height="608" rx="12" style="fill:var(--term)"/>
+<rect x="0" y="0" width="1000" height="722" rx="12" style="fill:var(--term)"/>
 <circle cx="22" cy="22" r="6" fill="#ff5f57"/>
 <circle cx="42" cy="22" r="6" fill="#febc2e"/>
 <circle cx="62" cy="22" r="6" fill="#28c840"/>
 <text x="500" y="27" font-size="12.5" text-anchor="middle" style="fill:var(--term-muted)">premerge demo: two agents, one working tree</text>
-<text x="20" y="67" font-size="12.5" class="mono" style="fill:var(--term-fg);white-space:pre" xml:space="preserve">$ premerge save --branch agent-a/cart -m "Cart total with discounts and a first unit test" -- src/cart.js test/cart.t…</text>
-<text x="20" y="86" font-size="12.5" class="mono" style="fill:#7ee787;white-space:pre" xml:space="preserve">Created agent-a/cart at 0cc01d5bf3 with 3 file(s). Working tree and index untouched.</text>
-<text x="20" y="105" font-size="12.5" class="mono" style="fill:var(--term-fg);white-space:pre" xml:space="preserve">$ premerge report --branch agent-a/cart --commit</text>
-<text x="20" y="124" font-size="12.5" class="mono" style="fill:#f0883e;white-space:pre" xml:space="preserve">Missing --why "&lt;why this change exists, one sentence&gt;". The merging agent will not merge a change whose purpose it do…</text>
-<text x="20" y="143" font-size="12.5" class="mono" style="fill:var(--term-fg);white-space:pre" xml:space="preserve">$ premerge report --branch agent-a/cart --why "Checkout needs real totals with discounts before the spring sale." --n…</text>
-<text x="20" y="162" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">Report for agent-a/cart -&gt; main: 3 file(s), 1 partial.</text>
-<text x="20" y="181" font-size="12.5" class="mono" style="fill:#7ee787;white-space:pre" xml:space="preserve">Committed on agent-a/cart as a2186c7aad (no checkout). Read it with: git show agent-a/cart:docs/premerge/agent-a_cart…</text>
-<text x="20" y="200" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">Registry copy: ~/work/acme-shop/.git/premerge/acme-shop/agent-a_cart.md</text>
-<text x="20" y="219" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">Merge with: git merge --no-ff agent-a/cart</text>
-<text x="20" y="238" font-size="12.5" class="mono" style="fill:var(--term-fg);white-space:pre" xml:space="preserve">$ premerge save --branch agent-b/usd -m "Sell in USD" -- src/i18n.js package.json</text>
-<text x="20" y="257" font-size="12.5" class="mono" style="fill:#7ee787;white-space:pre" xml:space="preserve">Created agent-b/usd at e0dec97058 with 2 file(s). Working tree and index untouched.</text>
-<text x="20" y="276" font-size="12.5" class="mono" style="fill:var(--term-fg);white-space:pre" xml:space="preserve">$ premerge report --branch agent-b/usd --why "The US store opens first, so prices are shown in USD." --author "agent-…</text>
-<text x="20" y="295" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">Report for agent-b/usd -&gt; main: 2 file(s), 0 partial.</text>
-<text x="20" y="314" font-size="12.5" class="mono" style="fill:#7ee787;white-space:pre" xml:space="preserve">Committed on agent-b/usd as a2327aad50 (no checkout). Read it with: git show agent-b/usd:docs/premerge/agent-b_usd.md</text>
-<text x="20" y="333" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">Registry copy: ~/work/acme-shop/.git/premerge/acme-shop/agent-b_usd.md</text>
-<text x="20" y="352" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">Merge with: git merge --no-ff agent-b/usd</text>
-<text x="20" y="371" font-size="12.5" class="mono" style="fill:var(--term-fg);white-space:pre" xml:space="preserve">$ premerge list</text>
-<text x="20" y="390" font-size="12.5" class="mono" style="fill:#6cb6ff;white-space:pre" xml:space="preserve"># Branches waiting for `main`</text>
-<text x="20" y="409" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">| Branch | Ahead/behind | Report | Why | Shares files with |</text>
-<text x="20" y="428" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">|---|---|---|---|---|</text>
-<text x="20" y="447" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">| `agent-b/usd` | 2/0 | ready | The US store opens first, so prices are shown in USD. | `agent-a/cart` (1) |</text>
-<text x="20" y="466" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">| `agent-a/cart` | 2/0 | ready | Checkout needs real totals with discounts before the spring sale. | `agent-b/usd` (1…</text>
-<text x="20" y="485" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">Every branch has a current report.</text>
-<text x="20" y="504" font-size="12.5" class="mono" style="fill:var(--term-fg);white-space:pre" xml:space="preserve">$ git status --short</text>
-<text x="20" y="523" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">M package.json</text>
-<text x="20" y="542" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve"> M src/cart.js</text>
-<text x="20" y="561" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve"> M src/i18n.js</text>
-<text x="20" y="580" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">?? test/</text>
+<text x="20" y="67" font-size="12.5" class="mono" style="fill:var(--term-fg);white-space:pre" xml:space="preserve">$ premerge save --branch agent-a/cart -m "Cart total with discounts and a first unit test" -- src/cart.js</text>
+<text x="20" y="86" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">    test/cart.test.js package.json</text>
+<text x="20" y="105" font-size="12.5" class="mono" style="fill:#7ee787;white-space:pre" xml:space="preserve">Created agent-a/cart at 9a179d3ef1 with 3 file(s). Working tree and index untouched.</text>
+<text x="20" y="124" font-size="12.5" class="mono" style="fill:var(--term-fg);white-space:pre" xml:space="preserve">$ premerge report --branch agent-a/cart --commit</text>
+<text x="20" y="143" font-size="12.5" class="mono" style="fill:#f0883e;white-space:pre" xml:space="preserve">Missing --why "&lt;why this change exists, one sentence&gt;". The merging agent will not merge a change whose purpose it</text>
+<text x="20" y="162" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">    does not understand.</text>
+<text x="20" y="181" font-size="12.5" class="mono" style="fill:var(--term-fg);white-space:pre" xml:space="preserve">$ premerge report --branch agent-a/cart --why "Checkout needs real totals with discounts before the spring sale."</text>
+<text x="20" y="200" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">    --notes ~/work/notes-a.md --author "agent-a (cart)" --commit</text>
+<text x="20" y="219" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">Report for agent-a/cart -&gt; main: 3 file(s), 1 partial.</text>
+<text x="20" y="238" font-size="12.5" class="mono" style="fill:#7ee787;white-space:pre" xml:space="preserve">Committed on agent-a/cart as 3bab2822a3 (no checkout). Read it with: git show</text>
+<text x="20" y="257" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">    agent-a/cart:docs/premerge/agent-a_cart.md</text>
+<text x="20" y="276" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">Registry copy: ~/work/acme-shop/.git/premerge/acme-shop/agent-a_cart.md</text>
+<text x="20" y="295" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">Merge with: git merge --no-ff agent-a/cart</text>
+<text x="20" y="314" font-size="12.5" class="mono" style="fill:var(--term-fg);white-space:pre" xml:space="preserve">$ premerge save --branch agent-b/usd -m "Sell in USD" -- src/i18n.js package.json</text>
+<text x="20" y="333" font-size="12.5" class="mono" style="fill:#7ee787;white-space:pre" xml:space="preserve">Created agent-b/usd at b2e124c5ba with 2 file(s). Working tree and index untouched.</text>
+<text x="20" y="352" font-size="12.5" class="mono" style="fill:var(--term-fg);white-space:pre" xml:space="preserve">$ premerge report --branch agent-b/usd --why "The US store opens first, so prices are shown in USD." --author "agent-b</text>
+<text x="20" y="371" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">    (i18n)" --depends-on agent-a/cart --commit</text>
+<text x="20" y="390" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">Report for agent-b/usd -&gt; main: 2 file(s), 0 partial.</text>
+<text x="20" y="409" font-size="12.5" class="mono" style="fill:#7ee787;white-space:pre" xml:space="preserve">Committed on agent-b/usd as 874b7564df (no checkout). Read it with: git show agent-b/usd:docs/premerge/agent-b_usd.md</text>
+<text x="20" y="428" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">Registry copy: ~/work/acme-shop/.git/premerge/acme-shop/agent-b_usd.md</text>
+<text x="20" y="447" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">Merge with: git merge --no-ff agent-b/usd</text>
+<text x="20" y="466" font-size="12.5" class="mono" style="fill:var(--term-fg);white-space:pre" xml:space="preserve">$ premerge list</text>
+<text x="20" y="485" font-size="12.5" class="mono" style="fill:#6cb6ff;white-space:pre" xml:space="preserve"># Branches waiting for `main`</text>
+<text x="20" y="504" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">| Branch | Ahead/behind | Report | Why | Shares files with |</text>
+<text x="20" y="523" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">|---|---|---|---|---|</text>
+<text x="20" y="542" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">| `agent-b/usd` | 2/0 | ready | The US store opens first, so prices are shown in USD. | `agent-a/cart` (1) |</text>
+<text x="20" y="561" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">| `agent-a/cart` | 2/0 | ready | Checkout needs real totals with discounts before the spring sale. | `agent-b/usd` (1)</text>
+<text x="20" y="580" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">    |</text>
+<text x="20" y="599" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">Every branch has a current report.</text>
+<text x="20" y="618" font-size="12.5" class="mono" style="fill:var(--term-fg);white-space:pre" xml:space="preserve">$ git status --short</text>
+<text x="20" y="637" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve"> M package.json</text>
+<text x="20" y="656" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve"> M src/cart.js</text>
+<text x="20" y="675" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve"> M src/i18n.js</text>
+<text x="20" y="694" font-size="12.5" class="mono" style="fill:var(--term-muted);white-space:pre" xml:space="preserve">?? test/</text>
 </svg>

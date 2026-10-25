@@ -32,19 +32,35 @@ premerge fixes the hand-off. The author writes one sentence of purpose and a few
 /plugin install premerge@premerge
 ```
 
-**As a plain skill** (copy the folder):
+**As a plain skill** (copy the folder). macOS, Linux, Git Bash:
 
 ```bash
 git clone https://github.com/GameOwerMedia/premerge
 cp -r premerge/skills/premerge ~/.claude/skills/
 ```
 
-**As a command-line tool** (no install step; Node.js 18+ and git 2.31+):
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/GameOwerMedia/premerge
+Copy-Item -Recurse premerge\skills\premerge "$HOME\.claude\skills\"
+```
+
+**As a command-line tool** (no install step; Node.js 20+ and git 2.25+). macOS, Linux, Git Bash:
 
 ```bash
 alias premerge="node ~/.claude/skills/premerge/scripts/premerge.mjs"
 premerge --help
 ```
+
+Windows PowerShell:
+
+```powershell
+function premerge { node "$HOME\.claude\skills\premerge\scripts\premerge.mjs" @args }
+premerge --help
+```
+
+The examples below use the POSIX shell form.
 
 ## Quick start
 
@@ -67,7 +83,11 @@ git show agent-a/cart:docs/premerge/agent-a_cart.md
 
 <p align="center"><img src="assets/how-it-works.svg" alt="Diagram: the shared working tree holds files from agent A, agent B and a mixed package.json; premerge save builds a commit through a temporary index; premerge report adds docs/premerge/agent-a_cart.md the same way; the merging side reads premerge list" width="100%"></p>
 
-- **Temporary index.** Both `save` and `report --commit` set `GIT_INDEX_FILE` to a throwaway file, read the parent tree into it, stage only what they should, then `write-tree`, `commit-tree` and `update-ref` with an old-value check. HEAD, the real index and the working tree are never touched. If the branch is checked out in some worktree, that worktree's index entry and file are updated so its `git status` stays clean.
+- **Temporary index.** Both `save` and `report --commit` set `GIT_INDEX_FILE` to a throwaway file, read the parent tree into it, stage only what they should, then `write-tree`, `commit-tree` and `update-ref` with an old-value check.
+  - `save` changes exactly one thing: the ref of the target branch. It refuses a branch that is checked out anywhere.
+  - `report --commit` moves the ref of the reported branch. If that branch is checked out in a worktree (so that worktree's HEAD now points at the new commit), it also writes that worktree's `docs/premerge/<branch>.md` and its index entry, so `git status` there stays clean. If that file has uncommitted edits, staged or not, the command refuses (exit 5) and nothing moves.
+  - `report` without `--commit` writes `docs/premerge/<branch>.md` into the current working tree for review (or to `--out <file>`).
+  - Every report is also copied into the registry folder inside `.git` (see below).
 - **Purpose first.** `report` refuses to run without `--why` (exit 3). The merging side is meant to stop at any branch it cannot explain; a missing purpose is the cheapest place to catch that.
 - **Facts from git.** Files with line counts and status, owning module, exported names added, changed or removed in modified JS/TS files, commits, position against production branches. The author never retypes a file list.
 - **Generated risks.**
@@ -84,11 +104,11 @@ premerge is the single-repository half of a pair. Its companion **[mergechaos](h
 
 | Command | What it does |
 |---|---|
-| `report --why "<purpose>"` | Writes `docs/premerge/<branch>.md`. Options: `--branch` (default: current), `--base` (default: config, `origin/HEAD`, then `main`, `master`, `trunk`, `develop`), `--notes <file.md>`, `--author` (default: `git config user.name`), `--status ready\|wip`, `--depends-on a,b`, `--commit`, `--allow-empty`, `--out <file>`, `--registry <dir>`, `--no-registry`, `--repo <dir>`, `--json`. |
-| `save --branch <b> -m "<msg>" -- <paths>` | Commits the given paths from the working tree onto `<b>` (created from `--from`, default HEAD, if missing). `--patch <file.diff>` stages only the hunks in that patch. Refuses private files and secret-looking lines. |
+| `report --why "<purpose>"` | Without `--commit`: writes `docs/premerge/<branch>.md` into the current working tree (or to `--out <file>`). With `--commit`: commits it onto the branch as described above. Options: `--branch` (default: current), `--base` (default: config, `origin/HEAD`, then `main`, `master`, `trunk`, `develop`), `--notes <file.md>`, `--author` (default: `git config user.name`), `--status ready\|wip`, `--depends-on a,b`, `--commit`, `--allow-empty`, `--out <file>`, `--registry <dir>`, `--no-registry`, `--repo <dir>`, `--json`. |
+| `save --branch <b> -m "<msg>" -- <paths>` | Commits the given paths from the working tree onto `<b>` (created from `--from`, default HEAD, if missing). `--patch <file.diff>` stages only the hunks in that patch. Refuses `.` (that would take every session's changes), private file names and lines that look like secrets (best effort, see Limitations). |
 | `list` | Every unmerged local branch: ahead/behind, report status (missing, stale, wip, registry only), purpose, branches it shares files with. `--base`, `--json`. |
 
-Exit codes: `0` ok, `2` usage error, `3` missing `--why`, `4` nothing to report or save, `5` refused (private file or possible secret).
+Exit codes: `0` ok, `2` usage error, `3` missing `--why`, `4` nothing to report or save, `5` refused (private file, possible secret, or uncommitted edits in the report file of a checked-out branch).
 
 ## Configuration
 
@@ -121,12 +141,14 @@ Only in a working tree you share with other sessions. If the working tree is you
 A new commit replaces the file on the branch; the registry keeps the newest line per branch. Running it after later work is the normal way to refresh a stale report.
 
 **Is the secret check enough?**
-No. It is a short list of patterns that catches the common accidents (provider keys, private keys, `password = "..."`). Keep a real secret scanner in CI.
+No. It is a best-effort safety net, not a guarantee. It refuses well-known private file names (`.env` and `*.env` files, `*.local.*`, key stores, Terraform state, SSH keys, `.npmrc`, `.git-credentials`, cloud credential files) and added lines that look like credentials: sensitive names in any casing (`OPENAI_API_KEY`, `dbPassword`, `jwtSecret`) assigned a literal, known key prefixes, bearer tokens, credentials in URLs, JSON web tokens, private key blocks. It scans binary files as text. It cannot recognise a secret that looks like ordinary text. Run a dedicated scanner such as [gitleaks](https://github.com/gitleaks/gitleaks) as well, locally and in CI.
 
 **Does it work without Claude Code?**
 Yes. The script is a plain CLI; the skill only tells an agent when and how to use it.
 
 ## Limitations
+
+- The private-file and secret checks in `save` are pattern-based and best effort; they reduce accidents, they do not prove a commit is clean. The full list of patterns is in `skills/premerge/scripts/premerge.mjs` (`PRIVATE_FILE`, `SECRET_RULES`) and in `tests/secrets.test.mjs`.
 
 - Export detection covers JavaScript and TypeScript `export` declarations only.
 - Partial-file detection compares blobs, so it only knows that a file differs, not which hunks belong to whom; the author's notes have to say that.
