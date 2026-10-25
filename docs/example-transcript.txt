@@ -1,0 +1,36 @@
+$ premerge save --branch agent-a/cart -m "Cart total with discounts and a first unit test" -- src/cart.js test/cart.test.js package.json
+Created agent-a/cart at 0cc01d5bf3 with 3 file(s). Working tree and index untouched.
+
+$ premerge report --branch agent-a/cart --commit
+Missing --why "<why this change exists, one sentence>". The merging agent will not merge a change whose purpose it does not understand.
+
+$ premerge report --branch agent-a/cart --why "Checkout needs real totals with discounts before the spring sale." --notes ~/work/notes-a.md --author "agent-a (cart)" --commit
+Report for agent-a/cart -> main: 3 file(s), 1 partial.
+Committed on agent-a/cart as a2186c7aad (no checkout). Read it with: git show agent-a/cart:docs/premerge/agent-a_cart.md
+Registry copy: ~/work/acme-shop/.git/premerge/acme-shop/agent-a_cart.md
+Merge with: git merge --no-ff agent-a/cart
+
+$ premerge save --branch agent-b/usd -m "Sell in USD" -- src/i18n.js package.json
+Created agent-b/usd at e0dec97058 with 2 file(s). Working tree and index untouched.
+
+$ premerge report --branch agent-b/usd --why "The US store opens first, so prices are shown in USD." --author "agent-b (i18n)" --depends-on agent-a/cart --commit
+Report for agent-b/usd -> main: 2 file(s), 0 partial.
+Committed on agent-b/usd as a2327aad50 (no checkout). Read it with: git show agent-b/usd:docs/premerge/agent-b_usd.md
+Registry copy: ~/work/acme-shop/.git/premerge/acme-shop/agent-b_usd.md
+Merge with: git merge --no-ff agent-b/usd
+
+$ premerge list
+# Branches waiting for `main`
+
+| Branch | Ahead/behind | Report | Why | Shares files with |
+|---|---|---|---|---|
+| `agent-b/usd` | 2/0 | ready | The US store opens first, so prices are shown in USD. | `agent-a/cart` (1) |
+| `agent-a/cart` | 2/0 | ready | Checkout needs real totals with discounts before the spring sale. | `agent-b/usd` (1) |
+
+Every branch has a current report.
+
+$ git status --short
+M package.json
+ M src/cart.js
+ M src/i18n.js
+?? test/

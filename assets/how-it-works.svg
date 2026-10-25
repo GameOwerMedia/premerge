@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="360" viewBox="0 0 1100 360" role="img" aria-labelledby="t">
+<title id="t">premerge save and report build commits through temporary indexes; the shared working tree is never touched</title>
+<style>
+  :root { --bg:#f6f8fa; --card:#ffffff; --line:#d0d7de; --fg:#1f2328; --muted:#59636e; --blue:#0969da; --green:#1a7f37; --amber:#9a6700; --red:#cf222e; --purple:#8250df;
+          --blue-bg:#ddf4ff; --green-bg:#dafbe1; --amber-bg:#fff8c5; --red-bg:#ffebe9; --purple-bg:#fbefff; --term:#0d1117; --term-fg:#e6edf3; --term-muted:#9198a1; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0d1117; --card:#161b22; --line:#30363d; --fg:#e6edf3; --muted:#9198a1; --blue:#4493f8; --green:#3fb950; --amber:#d29922; --red:#f85149; --purple:#ab7df8;
+            --blue-bg:#0c2d6b; --green-bg:#0f3a1d; --amber-bg:#3b2e00; --red-bg:#4c1214; --purple-bg:#2e1a52; --term:#010409; }
+  }
+  text { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: var(--fg); }
+  .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
+  .muted { fill: var(--muted); }
+  .h { font-weight: 600; }
+  .card { fill: var(--card); stroke: var(--line); stroke-width: 1; }
+  .wire { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+</style>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--muted)"/></marker></defs>
+<rect width="1100" height="360" rx="12" style="fill:var(--bg)"/>
+<text x="24" y="40" font-size="16" class="h" >One shared working tree, two agents, no checkout</text>
+<rect x="24" y="64" width="300" height="240" rx="8" class="card" />
+<text x="40" y="90" font-size="13" class="h" >working tree (HEAD = main)</text>
+<rect x="40" y="108" width="268" height="34" rx="6" style="fill:var(--blue-bg);stroke:var(--blue)"/>
+<text x="52" y="130" font-size="12.5" class="mono" >src/cart.js</text>
+<text x="296" y="130" font-size="11.5" class="" text-anchor="end" style="fill:var(--blue)">agent A</text>
+<rect x="40" y="152" width="268" height="34" rx="6" style="fill:var(--blue-bg);stroke:var(--blue)"/>
+<text x="52" y="174" font-size="12.5" class="mono" >test/cart.test.js</text>
+<text x="296" y="174" font-size="11.5" class="" text-anchor="end" style="fill:var(--blue)">agent A</text>
+<rect x="40" y="196" width="268" height="34" rx="6" style="fill:var(--amber-bg);stroke:var(--amber)"/>
+<text x="52" y="218" font-size="12.5" class="mono" >package.json</text>
+<text x="296" y="218" font-size="11.5" class="" text-anchor="end" style="fill:var(--amber)">A + B</text>
+<rect x="40" y="240" width="268" height="34" rx="6" style="fill:var(--purple-bg);stroke:var(--purple)"/>
+<text x="52" y="262" font-size="12.5" class="mono" >src/i18n.js</text>
+<text x="296" y="262" font-size="11.5" class="" text-anchor="end" style="fill:var(--purple)">agent B</text>
+<rect x="372" y="64" width="330" height="108" rx="8" class="card" />
+<text x="388" y="90" font-size="13" class="mono h" >premerge save</text>
+<text x="388" y="112" font-size="12" class="muted" >temporary index from HEAD</text>
+<text x="388" y="132" font-size="12" class="muted" >+ only my paths (or --patch: my hunks)</text>
+<text x="388" y="152" font-size="11.5" class="mono muted" >-&gt; commit-tree -&gt; update-ref</text>
+<rect x="372" y="196" width="330" height="108" rx="8" class="card" />
+<text x="388" y="222" font-size="13" class="mono h" >premerge report --why ... --commit</text>
+<text x="388" y="244" font-size="12" class="muted" >facts from git, notes from the author</text>
+<text x="388" y="264" font-size="12" class="muted" >risks: hot, partial, overlaps</text>
+<text x="388" y="284" font-size="12" class="muted" >committed through a temporary index</text>
+<rect x="750" y="64" width="326" height="240" rx="8" class="card" />
+<text x="766" y="90" font-size="13" class="mono h" >branch agent-a/cart</text>
+<circle cx="780" cy="112" r="7" stroke-width="2" style="fill:var(--card);stroke:var(--blue)"/>
+<text x="796" y="116" font-size="12" class="mono" >work commit</text>
+<circle cx="780" cy="164" r="7" stroke-width="2" style="fill:var(--card);stroke:var(--green)"/>
+<text x="796" y="168" font-size="12" class="mono" >docs/premerge/agent-a_cart.md</text>
+<line x1="780" y1="119" x2="780" y2="157" stroke-width="2" style="stroke:var(--line)"/>
+<text x="766" y="214" font-size="12.5" class="h" >Merging side:</text>
+<text x="766" y="236" font-size="12" class="mono" >premerge list</text>
+<text x="766" y="256" font-size="12" class="muted" >purpose, status, shared files</text>
+<text x="766" y="276" font-size="12" class="muted" >per branch, before any merge</text>
+<path d="M324,150 C348,150 348,118 372,118" class="wire" marker-end="url(#arrow)"/>
+<path d="M324,220 C348,220 348,250 372,250" class="wire" marker-end="url(#arrow)"/>
+<path d="M702,118 C726,118 726,112 750,112" class="wire" marker-end="url(#arrow)"/>
+<path d="M702,250 C726,250 726,164 750,164" class="wire" marker-end="url(#arrow)"/>
+<text x="24" y="336" font-size="12.5" class="muted" >HEAD, the shared index and every file on disk stay exactly as they were. package.json is reported as partial: the disk holds changes that are not in the branch.</text>
+</svg>

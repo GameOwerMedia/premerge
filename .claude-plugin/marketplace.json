@@ -1,0 +1,35 @@
+{
+  "name": "premerge",
+  "owner": {
+    "name": "OverJK",
+    "url": "https://github.com/GameOwerMedia"
+  },
+  "metadata": {
+    "description": "premerge: Merge reports for many agents working in one repository.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "premerge",
+      "source": "./",
+      "description": "Merge reports for many agents working in one repository: why each branch exists, which files and modules it touches, hot and partial files, overlaps with other branches. Committed onto the branch without touching the shared working tree.",
+      "version": "0.1.0",
+      "author": {
+        "name": "OverJK"
+      },
+      "license": "MIT",
+      "category": "development",
+      "keywords": [
+        "git",
+        "merge",
+        "code-review",
+        "multi-agent",
+        "worktree",
+        "branch",
+        "report",
+        "claude-code",
+        "skill"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "premerge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Merge reports for many agents working in one repository: why each branch exists, which files and modules it touches, hot and partial files, overlaps with other branches. Committed onto the branch without touching the shared working tree.",
+  "type": "module",
+  "license": "MIT",
+  "author": "OverJK",
+  "homepage": "https://github.com/GameOwerMedia/premerge",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GameOwerMedia/premerge.git"
+  },
+  "bin": {
+    "premerge": "skills/premerge/scripts/premerge.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "skills",
+    ".claude-plugin",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test tests/premerge.test.mjs",
+    "demo": "node examples/demo.mjs"
+  }
+}
